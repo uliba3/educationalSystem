@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+</head>
+<body>
+    <h1>Student Management System</h1>
+    
+    <!-- Form for creating a student -->
+    <h2>Create Student</h2>
+    For student id, please write last 7 digits.
+    <form id="create-student-form">
+        <label for="student_id">Student ID:</label><br>
+        <input type="number" id="student_id" name="Student_Id"><br>
+        
+        <label for="first_name">First Name:</label><br>
+        <input type="text" id="first_name" name="First_name"><br>
+        
+        <label for="middle_name">Middle Name:</label><br>
+        <input type="text" id="middle_name" name="Middle_name"><br>
+        
+        <label for="last_name">Last Name:</label><br>
+        <input type="text" id="last_name" name="Last_name"><br>
+        
+        <label for="dob">Date of Birth:</label><br>
+        <input type="date" id="dob" name="Date_of_Birth"><br>
+        
+        <label for="class_year">Class Year:</label><br>
+        <input type="number" id="class_year" name="Class_year"><br>
+        
+        <label for="phone_number">Phone Number:</label><br>
+        <input type="text" id="phone_number" name="Phone_number"><br>
+        
+        <button type="submit">Create Student</button>
+    </form>
+    
+    <!-- Display all students -->
+    <h2>All Students</h2>
+    <ul id="student-list">
+    </ul>
+    
+    <script>
+        // Function to handle form submission
+        document.getElementById('create-student-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            
+            // Gather form data
+            const formData = new FormData(event.target);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+            
+            // Convert data to JSON
+            const jsonDataString = JSON.stringify(jsonData);
+            
+            // Send data to FastAPI endpoint
+            fetch('http://localhost:8000/students/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonDataString
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Student created:', data);
+                // You can add further actions here if needed
+            })
+            .catch(error => console.error('Error creating student:', error));
+        });
+        
+        // Fetch all students and display them
+        fetch('http://localhost:8000/students/')
+            .then(response => response.json())
+            .then(students => {
+                const studentList = document.getElementById('student-list');
+                students.forEach(student => {
+                    const li = document.createElement('li');
+                    li.textContent = `${student.First_name} ${student.Last_name} - Class of ${student.Class_year}`;
+                    studentList.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Error fetching students:', error));
+    </script>
+</body>
+</html>
